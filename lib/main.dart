@@ -8,12 +8,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Mobile Ads only for Android/iOS
   if (!kIsWeb) {
     await MobileAds.instance.initialize();
   }
-  
   runApp(const ProConverterApp());
 }
 
@@ -30,10 +27,10 @@ class _ProConverterAppState extends State<ProConverterApp> {
   @override
   void initState() {
     super.initState();
-    _loadTheme();
+    _loadSettings();
   }
 
-  Future<void> _loadTheme() async {
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       final isDark = prefs.getBool('isDarkMode') ?? true;
@@ -71,7 +68,6 @@ class _ProConverterAppState extends State<ProConverterApp> {
   }
 }
 
-// --- GOOGLE ADS COMPONENT (Using your Real ID) ---
 class BannerAdWidget extends StatefulWidget {
   const BannerAdWidget({super.key});
 
@@ -86,14 +82,11 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   void initState() {
     super.initState();
-    if (!kIsWeb) {
-      _loadAd();
-    }
+    if (!kIsWeb) { _loadAd(); }
   }
 
   void _loadAd() {
     _bannerAd = BannerAd(
-      // YOUR REAL AD UNIT ID 
       adUnitId: 'ca-app-pub-1091684680167184/3603141261', 
       request: const AdRequest(),
       size: AdSize.banner,
@@ -115,10 +108,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb || !_isLoaded || _bannerAd == null) {
-      return const SizedBox.shrink();
-    }
-
+    if (kIsWeb || !_isLoaded || _bannerAd == null) return const SizedBox.shrink();
     return Container(
       alignment: Alignment.center,
       width: _bannerAd!.size.width.toDouble(),
@@ -148,10 +138,77 @@ class _MainDashboardState extends State<MainDashboard> {
   bool isOffline = false;
   final TextEditingController _controller = TextEditingController(text: "1.0");
 
+  int decimalPlaces = 3;
+  bool useScientific = false;
+  String selectedLang = "English";
+  final List<String> languages = ["English", "Hindi", "Spanish", "French", "Arabic", "Chinese", "Russian", "Portuguese", "German"];
+
+  // --- FULL TRANSLATION MAP ---
+  Map<String, Map<String, String>> localizedText = {
+    "English": {
+      "home": "Home", "fav": "Favorites", "hist": "History", "set": "Settings", "title": "SMART CONVERTER",
+      "Geometry": "Geometry", "Motion": "Motion", "Thermo": "Thermo", "Electronics": "Electronics", "Digital": "Digital",
+      "Length": "Length", "Area": "Area", "Volume": "Volume", "Mass": "Mass", "Time": "Time", "Speed": "Speed", "Acceleration": "Acceleration", "Angle": "Angle",
+      "Temperature": "Temperature", "Pressure": "Pressure", "Energy": "Energy", "Power": "Power", "Voltage": "Voltage", "Current": "Current", "Resistance": "Resistance", "Capacitance": "Capacitance",
+      "Frequency": "Frequency", "Data Size": "Data Size", "Data Rate": "Data Rate", "Currency": "Currency",
+      "dark_m": "Dark Mode 🌙", "light_m": "Light Mode ☀️", "lang": "Language", "prec": "Decimal Precision", "info": "Information", "note": "Precision Note", "ver": "Version", "sel": "Selected", "places": "places", "no_fav": "No favorites yet", "no_hist": "No history found", "copy": "Copied", "offline": "Offline: Cannot load rates", "retry": "Retry", "connect": "Connect to Internet",
+      "sci": "Scientific Notation", "export": "Export History", "csv_msg": "History copied as CSV"
+    },
+    "Hindi": {
+      "home": "होम", "fav": "पसंदीदा", "hist": "इतिहास", "set": "सेटिंग्स", "title": "स्मार्ट कन्वर्टर",
+      "Geometry": "ज्यामिति", "Motion": "गति", "Thermo": "ताप", "Electronics": "इलेक्ट्रॉनिक्स", "Digital": "डिजिटल",
+      "Length": "लंबाई", "Area": "क्षेत्रफल", "Volume": "आयतन", "Mass": "द्रव्यमान", "Currency": "मुद्रा",
+      "dark_m": "डार्क मोड 🌙", "light_m": "लाइट मोड ☀️", "lang": "भाषा", "prec": "दशमलव परिशुद्धता", "sci": "वैज्ञानिक अंकन", "export": "इतिहास निर्यात करें", "csv_msg": "इतिहास CSV के रूप में कॉपी किया गया"
+    },
+    "Spanish": {
+      "home": "Inicio", "fav": "Favoritos", "hist": "Historial", "set": "Ajustes", "title": "CONVERSOR INTELIGENTE",
+      "Geometry": "Geometría", "Motion": "Movimiento", "Thermo": "Termo", "Electronics": "Electrónica", "Digital": "Digital",
+      "Length": "Longitud", "Area": "Área", "Volume": "Volumen", "Mass": "Masa", "Currency": "Moneda",
+      "dark_m": "Modo Oscuro 🌙", "light_m": "Modo Claro ☀️", "lang": "Idioma", "prec": "Precisión decimal", "sci": "Notación científica", "export": "Exportar historial", "csv_msg": "Historial copiado como CSV"
+    },
+    "French": {
+      "home": "Accueil", "fav": "Favoris", "hist": "Historique", "set": "Paramètres", "title": "CONVERTISSEUR INTELLIGENT",
+      "Geometry": "Géométrie", "Motion": "Mouvement", "Thermo": "Thermo", "Electronics": "Électronique", "Digital": "Numérique",
+      "Length": "Longueur", "Area": "Zone", "Volume": "Volume", "Mass": "Masse", "Currency": "Devise",
+      "dark_m": "Mode sombre 🌙", "light_m": "Mode clair ☀️", "lang": "Langue", "prec": "Précision décimale", "sci": "Notation scientifique", "export": "Exporter l'historique", "csv_msg": "Historique copié en CSV"
+    },
+    "Arabic": {
+      "home": "الرئيسية", "fav": "المفضلة", "hist": "السجل", "set": "الإعدادات", "title": "المحول الذكي",
+      "Geometry": "الهندسة", "Motion": "الحركة", "Thermo": "الحرارة", "Electronics": "الإلكترونيات", "Digital": "الرقمية",
+      "Length": "الطول", "Area": "المساحة", "Volume": "الحجم", "Mass": "الكتلة", "Currency": "العملة",
+      "dark_m": "الوضع الداكن 🌙", "light_m": "الوضع الفاتح ☀️", "lang": "اللغة", "prec": "دقة الكسور", "sci": "الترميز العلمي", "export": "تصدير السجل", "csv_msg": "تم نسخ السجل بتنسيق CSV"
+    },
+    "Chinese": {
+      "home": "首页", "fav": "收藏夹", "hist": "历史", "set": "设置", "title": "智能转换器",
+      "Geometry": "几何", "Motion": "运动", "Thermo": "热学", "Electronics": "电子", "Digital": "数字",
+      "Length": "长度", "Area": "面积", "Volume": "体积", "Mass": "质量", "Currency": "货币",
+      "dark_m": "深色模式 🌙", "light_m": "浅色模式 ☀️", "lang": "语言", "prec": "十进制精度", "sci": "科学计数法", "export": "导出历史", "csv_msg": "历史记录已复制为 CSV"
+    },
+    "Russian": {
+      "home": "Главная", "fav": "Избранное", "hist": "История", "set": "Настройки", "title": "УМНЫЙ КОНВЕРТЕР",
+      "Geometry": "Геометрия", "Motion": "Движение", "Thermo": "Термо", "Electronics": "Электроника", "Digital": "Цифровой",
+      "Length": "Длина", "Area": "Площадь", "Volume": "Объем", "Mass": "Масса", "Currency": "Валюта",
+      "dark_m": "Темный режим 🌙", "light_m": "Светлый режим ☀️", "lang": "Язык", "prec": "Точность", "sci": "Научный формат", "export": "Экспорт истории", "csv_msg": "История скопирована как CSV"
+    },
+    "Portuguese": {
+      "home": "Início", "fav": "Favoritos", "hist": "Histórico", "set": "Configurações", "title": "CONVERSOR INTELIGENTE",
+      "Geometry": "Geometria", "Motion": "Movimento", "Thermo": "Termo", "Electronics": "Eletrônicos", "Digital": "Digital",
+      "Length": "Comprimento", "Area": "Área", "Volume": "Volume", "Mass": "Massa", "Currency": "Moeda",
+      "dark_m": "Modo Escuro 🌙", "light_m": "Modo Claro ☀️", "lang": "Idioma", "prec": "Precisão decimal", "sci": "Notação científica", "export": "Exportar histórico", "csv_msg": "Histórico copiado como CSV"
+    },
+    "German": {
+      "home": "Start", "fav": "Favoriten", "hist": "Verlauf", "set": "Einstellungen", "title": "SMARTER KONVERTER",
+      "Geometry": "Geometrie", "Motion": "Bewegung", "Thermo": "Thermo", "Electronics": "Elektronik", "Digital": "Digital",
+      "Length": "Länge", "Area": "Fläche", "Volume": "Volumen", "Mass": "Masse", "Currency": "Währung",
+      "dark_m": "Dunkelmodus 🌙", "light_m": "Hellmodus ☀️", "lang": "Sprache", "prec": "Dezimalstellen", "sci": "Wissensch. Notation", "export": "Verlauf exportieren", "csv_msg": "Verlauf als CSV kopiert"
+    }
+  };
+
+  String t(String key) => localizedText[selectedLang]?[key] ?? localizedText["English"]![key] ?? key;
+
   List<String> favorites = [];
   List<Map<String, String>> history = [];
 
-  // Data maps
   final List<String> topics = ["Geometry", "Motion", "Thermo", "Electronics", "Digital"];
   final Map<String, IconData> topicIcons = {
     "Geometry": Icons.architecture, "Motion": Icons.directions_run, "Thermo": Icons.whatshot, "Electronics": Icons.memory, "Digital": Icons.data_usage,
@@ -185,25 +242,25 @@ class _MainDashboardState extends State<MainDashboard> {
   };
 
   final Map<String, Map<String, double>> unitData = {
-    "Length": {"m": 1.0, "km": 1000.0, "cm": 0.01, "mm": 0.001, "dm": 0.1, "dam": 10.0, "hm": 100.0, "nm": 1e-9, "µm": 1e-6, "pm": 1e-12, "Å": 1e-10, "mile": 1609.34, "ft": 0.3048, "in": 0.0254, "yd": 0.9144, "nmi": 1852.0, "fathom": 1.8288, "rod": 5.029, "chain": 20.116, "furlong": 201.16, "league": 4828.03},
-    "Area": {"m²": 1.0, "km²": 1e6, "cm²": 1e-4, "mm²": 1e-6, "dm²": 0.01, "hectare": 10000.0, "acre": 4046.86, "mi²": 2.59e6, "ft²": 0.0929, "in²": 0.000645, "yd²": 0.836},
-    "Volume": {"m³": 1.0, "L": 0.001, "ml": 1e-6, "cl": 1e-5, "dl": 1e-4, "hL": 0.1, "cm³": 1e-6, "mm³": 1e-9, "dm³": 0.001, "ft³": 0.0283, "in³": 1.638e-5, "yd³": 0.764, "gal": 0.00378, "gal_uk": 0.00454, "qt": 0.000946, "pt": 0.000473, "cup": 0.00024, "fl oz": 2.957e-5, "barrel": 0.1589},
-    "Mass": {"kg": 1.0, "g": 0.001, "mg": 1e-6, "µg": 1e-9, "tonne": 1000.0, "lb": 0.4535, "oz": 0.0283, "stone": 6.35, "grain": 6.479e-5, "carat": 0.0002, "slug": 14.59},
-    "Time": {"sec": 1.0, "min": 60.0, "hr": 3600.0, "day": 86400.0, "week": 604800.0, "month": 2.628e6, "year": 3.154e7, "ms": 0.001, "µs": 1e-6, "ns": 1e-9, "decade": 3.154e8, "century": 3.154e9},
-    "Speed": {"m/s": 1.0, "km/h": 0.2777, "mph": 0.447, "knot": 0.514, "mach": 343.0, "ft/s": 0.3048},
-    "Acceleration": {"m/s²": 1.0, "g": 9.806, "ft/s²": 0.3048, "gal": 0.01},
-    "Angle": {"degree": 1.0, "radian": 57.295, "grad": 0.9, "arcmin": 0.0166, "arcsec": 0.00027, "turn": 360.0},
+    "Length": {"m": 1.0, "km": 1000.0, "cm": 0.01, "mm": 0.001, "dm": 0.1, "dam": 10.0, "hm": 100.0, "nm": 1e-9, "µm": 1e-6, "pm": 1e-12, "Å": 1e-10, "mile": 1609.34, "ft": 0.3048, "in": 0.0254, "yd": 0.9144, "nmi": 1852.0},
+    "Area": {"m²": 1.0, "km²": 1e6, "cm²": 1e-4, "mm²": 1e-6, "dm²": 0.01, "hectare": 10000.0, "acre": 4046.86, "mi²": 2.59e6},
+    "Volume": {"m³": 1.0, "L": 0.001, "ml": 1e-6, "cl": 1e-5, "cm³": 1e-6, "gal": 0.00378, "qt": 0.000946, "pt": 0.000473, "cup": 0.00024},
+    "Mass": {"kg": 1.0, "g": 0.001, "mg": 1e-6, "tonne": 1000.0, "lb": 0.4535, "oz": 0.0283, "carat": 0.0002},
+    "Time": {"sec": 1.0, "min": 60.0, "hr": 3600.0, "day": 86400.0, "week": 604800.0, "ms": 0.001, "year": 3.154e7},
+    "Speed": {"m/s": 1.0, "km/h": 0.2777, "mph": 0.447, "knot": 0.514},
+    "Acceleration": {"m/s²": 1.0, "g": 9.806, "ft/s²": 0.3048},
+    "Angle": {"degree": 1.0, "radian": 57.295, "grad": 0.9, "turn": 360.0},
     "Temperature": {"°C": 1.0, "°F": 1.0, "K": 1.0, "°R": 1.0, "°Re": 1.0},
-    "Pressure": {"Pa": 1.0, "kPa": 1000.0, "MPa": 1e6, "bar": 1e5, "mbar": 100.0, "atm": 101325.0, "psi": 6894.7, "torr": 133.32, "mmHg": 133.32, "inHg": 3386.38},
-    "Energy": {"J": 1.0, "kJ": 1000.0, "MJ": 1e6, "GJ": 1e9, "cal": 4.184, "kcal": 4184.0, "kWh": 3.6e6, "BTU": 1055.0},
-    "Power": {"W": 1.0, "kW": 1000.0, "MW": 1e6, "hp": 745.7, "TR": 3516.8, "dBm": 1.0},
-    "Voltage": {"V": 1.0, "mV": 0.001, "kV": 1000.0, "µV": 1e-6, "MV": 1e6},
-    "Current": {"A": 1.0, "mA": 0.001, "µA": 1e-6, "kA": 1000.0, "MA": 1e6},
-    "Resistance": {"Ω": 1.0, "mΩ": 0.001, "kΩ": 1000.0, "MΩ": 1e6, "GΩ": 1e9},
-    "Capacitance": {"F": 1.0, "mF": 0.001, "µF": 1e-6, "nF": 1e-9, "pF": 1e-12},
-    "Frequency": {"Hz": 1.0, "kHz": 1000.0, "MHz": 1e6, "GHz": 1e9, "rpm": 0.0166},
-    "Data Size": {"byte": 1.0, "bit": 0.125, "KB": 1024.0, "MB": 1.048e6, "GB": 1.073e9, "TB": 1.099e12, "PB": 1.125e15},
-    "Data Rate": {"bps": 1.0, "kbps": 1000.0, "Mbps": 1e6, "Gbps": 1e9, "B/s": 8.0, "MB/s": 8e6},
+    "Pressure": {"Pa": 1.0, "kPa": 1000.0, "bar": 1e5, "atm": 101325.0, "psi": 6894.7, "mmHg": 133.32},
+    "Energy": {"J": 1.0, "kJ": 1000.0, "cal": 4.184, "kcal": 4184.0, "kWh": 3.6e6, "BTU": 1055.0},
+    "Power": {"W": 1.0, "kW": 1000.0, "hp": 745.7},
+    "Voltage": {"V": 1.0, "mV": 0.001, "kV": 1000.0},
+    "Current": {"A": 1.0, "mA": 0.001, "kA": 1000.0},
+    "Resistance": {"Ω": 1.0, "kΩ": 1000.0, "MΩ": 1e6},
+    "Capacitance": {"F": 1.0, "µF": 1e-6, "nF": 1e-9, "pF": 1e-12},
+    "Frequency": {"Hz": 1.0, "kHz": 1000.0, "MHz": 1e6, "GHz": 1e9},
+    "Data Size": {"byte": 1.0, "bit": 0.125, "KB": 1024.0, "MB": 1.048e6, "GB": 1.073e9},
+    "Data Rate": {"bps": 1.0, "kbps": 1000.0, "Mbps": 1e6, "Gbps": 1e9},
   };
 
   final Map<String, String> fullNames = {
@@ -216,30 +273,28 @@ class _MainDashboardState extends State<MainDashboard> {
   @override
   void initState() {
     super.initState();
-    _loadFavorites();
-    _loadHistory();
+    _loadPersistedData();
     fetchCurrency();
   }
 
-  Future<void> _loadFavorites() async {
+  Future<void> _loadPersistedData() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() => favorites = prefs.getStringList('my_favs') ?? []);
+    setState(() {
+      favorites = prefs.getStringList('my_favs') ?? [];
+      decimalPlaces = prefs.getInt('decimal_p') ?? 3;
+      useScientific = prefs.getBool('use_scientific') ?? false;
+      selectedLang = prefs.getString('app_lang') ?? "English";
+      final String? historyString = prefs.getString('my_history_json');
+      if (historyString != null) {
+        List<dynamic> decoded = json.decode(historyString);
+        history = decoded.map((item) => Map<String, String>.from(item)).toList();
+      }
+    });
   }
 
   Future<void> _saveFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('my_favs', favorites);
-  }
-
-  Future<void> _loadHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? historyString = prefs.getString('my_history_json');
-    if (historyString != null) {
-      setState(() {
-        List<dynamic> decoded = json.decode(historyString);
-        history = decoded.map((item) => Map<String, String>.from(item)).toList();
-      });
-    }
   }
 
   Future<void> _saveHistory() async {
@@ -269,9 +324,21 @@ class _MainDashboardState extends State<MainDashboard> {
   void addToHistory(String from, String to, String val, String res, String section) {
     setState(() {
       history.insert(0, {'from': from, 'to': to, 'val': val, 'res': res, 'sec': section});
-      if (history.length > 10) history.removeLast();
+      if (history.length > 100) history.removeLast(); //
     });
     _saveHistory();
+  }
+
+  Future<void> exportHistoryToCSV() async {
+    if (history.isEmpty) return;
+    String csvData = "Section,Value,From,Result,To\n";
+    for (var entry in history) {
+      csvData += "${entry['sec']},${entry['val']},${entry['from']},${entry['res']},${entry['to']}\n";
+    }
+    await Clipboard.setData(ClipboardData(text: csvData));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t("csv_msg"))));
+    }
   }
 
   void toggleFavorite(String section, String from, String to) {
@@ -331,18 +398,16 @@ class _MainDashboardState extends State<MainDashboard> {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Banner Ad at the very bottom
           const BannerAdWidget(),
-          
           BottomNavigationBar(
             currentIndex: _navIdx,
             type: BottomNavigationBarType.fixed,
             onTap: (i) => setState(() => _navIdx = i),
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: "Home"),
-              BottomNavigationBarItem(icon: Icon(Icons.star_outline), activeIcon: Icon(Icons.star), label: "Favorites"),
-              BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
-              BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), activeIcon: Icon(Icons.settings), label: "Settings"),
+            items: [
+              BottomNavigationBarItem(icon: const Icon(Icons.home_outlined), activeIcon: const Icon(Icons.home), label: t("home")),
+              BottomNavigationBarItem(icon: const Icon(Icons.star_outline), activeIcon: const Icon(Icons.star), label: t("fav")),
+              BottomNavigationBarItem(icon: const Icon(Icons.history), label: t("hist")),
+              BottomNavigationBarItem(icon: const Icon(Icons.settings_outlined), activeIcon: const Icon(Icons.settings), label: t("set")),
             ],
           ),
         ],
@@ -379,7 +444,7 @@ class _MainDashboardState extends State<MainDashboard> {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 15, bottom: 5),
-          child: Text("SMART UNIT CONVERTER", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 4, color: activeColor)),
+          child: Text(t("title"), style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 2, color: activeColor)),
         ),
         _buildTopicBar(activeColor),
         _buildSectionBar(activeColor),
@@ -424,7 +489,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     ],
                   ),
                   if (currentSec == "Currency" && isOffline)
-                    const Text("Connect to Internet", style: TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text(t("connect"), style: const TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
                   if (fromUnit != null) _buildUnitDropdown(unitsMap, activeColor),
                   const SizedBox(height: 20),
                 ],
@@ -440,8 +505,8 @@ class _MainDashboardState extends State<MainDashboard> {
               children: [
                 const Icon(Icons.cloud_off, size: 40, color: Colors.grey),
                 const SizedBox(height: 10),
-                const Text("Offline: Cannot load rates", style: TextStyle(color: Colors.grey)),
-                TextButton(onPressed: fetchCurrency, child: const Text("Retry"))
+                Text(t("offline"), style: const TextStyle(color: Colors.grey)),
+                TextButton(onPressed: fetchCurrency, child: Text(t("retry")))
               ],
             ))
           : ListView.builder(
@@ -476,7 +541,7 @@ class _MainDashboardState extends State<MainDashboard> {
                 child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(topicIcons[topics[i]], size: 22, color: isActive ? Colors.black : (isDark ? Colors.white38 : Colors.black38)),
                   const SizedBox(height: 6),
-                  Text(topics[i], style: TextStyle(fontSize: 10, fontWeight: isActive ? FontWeight.bold : FontWeight.normal, color: isActive ? Colors.black : (isDark ? Colors.white70 : Colors.black87))),
+                  Text(t(topics[i]), style: TextStyle(fontSize: 10, fontWeight: isActive ? FontWeight.bold : FontWeight.normal, color: isActive ? Colors.black : (isDark ? Colors.white70 : Colors.black87))),
                 ]),
               ),
             ),
@@ -500,7 +565,7 @@ class _MainDashboardState extends State<MainDashboard> {
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Icon(sectionIcons[secList[i]], size: 20, color: isActive ? activeColor : (isDark ? Colors.white24 : Colors.black26)),
               const SizedBox(height: 6),
-              Text(secList[i].toUpperCase(), style: TextStyle(fontSize: 8, letterSpacing: 0.8, fontWeight: isActive ? FontWeight.w900 : FontWeight.w500, color: isActive ? activeColor : (isDark ? Colors.white24 : Colors.black26))),
+              Text(t(secList[i]).toUpperCase(), style: TextStyle(fontSize: 8, letterSpacing: 0.8, fontWeight: isActive ? FontWeight.w900 : FontWeight.w500, color: isActive ? activeColor : (isDark ? Colors.white24 : Colors.black26))),
             ]),
           ),
         );
@@ -510,14 +575,21 @@ class _MainDashboardState extends State<MainDashboard> {
 
   Widget _buildResultRow(String symbol, double val, Color activeColor, String section) {
     bool isDark = widget.currentMode == ThemeMode.dark;
-    String formattedVal = val.toStringAsFixed(val < 0.001 ? 6 : 3).replaceAll(RegExp(r"([.]*0+)(?!.*\d)"), "");
+    
+    String formattedVal;
+    if (useScientific && (val >= 10000 || (val < 0.001 && val != 0))) {
+      formattedVal = val.toStringAsExponential(decimalPlaces);
+    } else {
+      formattedVal = val.toStringAsFixed(decimalPlaces).replaceAll(RegExp(r"([.]*0+)(?!.*\d)"), "");
+    }
+
     String comboKey = "$section|$fromUnit|$symbol";
     bool isFav = favorites.contains(comboKey);
 
     return ListTile(
       onLongPress: () {
         Clipboard.setData(ClipboardData(text: formattedVal));
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Copied $formattedVal"), duration: const Duration(seconds: 1)));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${t("copy")} $formattedVal"), duration: const Duration(seconds: 1)));
       },
       onTap: () {
         addToHistory(fromUnit!, symbol, inputValue.toString(), formattedVal, section);
@@ -544,10 +616,10 @@ class _MainDashboardState extends State<MainDashboard> {
     bool isDark = widget.currentMode == ThemeMode.dark;
     return Column(
       children: [
-        Padding(padding: const EdgeInsets.all(20), child: Text("Favorites", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black))),
+        Padding(padding: const EdgeInsets.all(20), child: Text(t("fav"), style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black))),
         Expanded(
           child: favorites.isEmpty
-            ? const Center(child: Text("No favorites yet", style: TextStyle(color: Colors.grey)))
+            ? Center(child: Text(t("no_fav"), style: const TextStyle(color: Colors.grey)))
             : ListView.builder(
                 itemCount: favorites.length,
                 itemBuilder: (c, i) {
@@ -555,7 +627,7 @@ class _MainDashboardState extends State<MainDashboard> {
                    return ListTile(
                     onTap: () => restoreCalculation(parts[0], parts[1], parts[2], "1.0"),
                     leading: const Icon(Icons.star, color: Colors.amber),
-                    title: Text("${parts[0]}: ${parts[1]} ➔ ${parts[2]}", style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+                    title: Text("${t(parts[0])}: ${parts[1]} ➔ ${parts[2]}", style: TextStyle(color: isDark ? Colors.white : Colors.black)),
                     trailing: IconButton(icon: const Icon(Icons.delete_outline), onPressed: () => toggleFavorite(parts[0], parts[1], parts[2])),
                   );
                 },
@@ -570,19 +642,19 @@ class _MainDashboardState extends State<MainDashboard> {
     return Column(
       children: [
         Padding(padding: const EdgeInsets.all(20), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text("History (Last 10)", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black)),
+          Text(t("hist"), style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black)),
           if (history.isNotEmpty) IconButton(icon: const Icon(Icons.delete_sweep, color: Colors.redAccent), onPressed: () { setState(() => history.clear()); _saveHistory(); })
         ])),
         Expanded(
           child: history.isEmpty
-            ? const Center(child: Text("No history found", style: TextStyle(color: Colors.grey)))
+            ? Center(child: Text(t("no_hist"), style: const TextStyle(color: Colors.grey)))
             : ListView.builder(
                 itemCount: history.length,
                 itemBuilder: (c, i) => ListTile(
                   onTap: () => restoreCalculation(history[i]['sec']!, history[i]['from']!, history[i]['to']!, history[i]['val']!),
                   leading: const Icon(Icons.history_toggle_off),
                   title: Text("${history[i]['val']} ${history[i]['from']} = ${history[i]['res']} ${history[i]['to']}", style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-                  subtitle: Text(history[i]['sec'] ?? "", style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                  subtitle: Text(t(history[i]['sec'] ?? ""), style: const TextStyle(fontSize: 10, color: Colors.grey)),
                 ),
               ),
         ),
@@ -592,19 +664,76 @@ class _MainDashboardState extends State<MainDashboard> {
 
   Widget _buildSettings() {
     bool isDark = widget.currentMode == ThemeMode.dark;
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Settings", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black)),
+          Text(t("set"), style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black)),
           const SizedBox(height: 30),
           ListTile(
-            title: Text(isDark ? "Dark Mode 🌙" : "Light Mode ☀️", style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+            title: Text(isDark ? t("dark_m") : t("light_m"), style: TextStyle(color: isDark ? Colors.white : Colors.black)),
             trailing: Switch(value: isDark, onChanged: (v) => widget.onThemeChanged(v)),
           ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.language, color: Colors.blueAccent),
+            title: Text(t("lang")),
+            subtitle: Text("${t("sel")}: $selectedLang"),
+            trailing: DropdownButton<String>(
+              value: selectedLang,
+              onChanged: (String? newVal) async {
+                if (newVal != null) {
+                  setState(() => selectedLang = newVal);
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setString('app_lang', newVal);
+                }
+              },
+              items: languages.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(value: value, child: Text(value));
+              }).toList(),
+            ),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.format_list_numbered, color: Colors.green),
+            title: Text(t("prec")),
+            subtitle: Text("${t("sel")}: $decimalPlaces ${t("places")}"),
+            trailing: DropdownButton<int>(
+              value: decimalPlaces,
+              onChanged: (int? newVal) async {
+                if (newVal != null) {
+                  setState(() => decimalPlaces = newVal);
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setInt('decimal_p', newVal);
+                }
+              },
+              items: [0, 1, 2, 3, 4, 5, 6].map<DropdownMenuItem<int>>((int value) {
+                return DropdownMenuItem<int>(value: value, child: Text("$value"));
+              }).toList(),
+            ),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.science_outlined, color: Colors.purple),
+            title: Text(t("sci")),
+            trailing: Switch(
+              value: useScientific,
+              onChanged: (v) async {
+                setState(() => useScientific = v);
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('use_scientific', v);
+              },
+            ),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.ios_share, color: Colors.orange),
+            title: Text(t("export")),
+            onTap: exportHistoryToCSV,
+          ),
           const Divider(height: 40),
-          const Text("Important Information", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
+          Text(t("info"), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
           const SizedBox(height: 10),
           Card(
             color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
@@ -614,13 +743,13 @@ class _MainDashboardState extends State<MainDashboard> {
                 children: [
                   ListTile(
                     leading: const Icon(Icons.info_outline, color: Colors.blue),
-                    title: Text("Precision Note", style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-                    subtitle: Text("Scientific calculations use 6 decimal places for high precision.", style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
+                    title: Text(t("note")),
+                    subtitle: Text("Precision: $decimalPlaces places", style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.verified_user_outlined, color: Colors.green),
-                    title: Text("Version", style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-                    subtitle: Text("v1.0.5 - Pro Edition", style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
+                  const ListTile(
+                    leading: Icon(Icons.verified_user_outlined, color: Colors.green),
+                    title: Text("Version"),
+                    subtitle: Text("v1.0.7 - Pro Edition", style: TextStyle(color: Colors.grey)),
                   ),
                 ],
               ),
