@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -131,90 +132,101 @@ class _MainDashboardState extends State<MainDashboard> {
   int _navIdx = 0;
   int topicIdx = 0;
   int sectionIdx = 0;
-  double inputValue = 1.0;
-  String? fromUnit;
+
+  // CHANGED: Use Maps to store data for each specific section
+  Map<String, String> sectionInputValues = {};
+  Map<String, String> sectionFromUnits = {};
+
   Map<String, double> currencyRates = {};
   bool isLoadingCurrency = false;
   bool isOffline = false;
-  final TextEditingController _controller = TextEditingController(text: "1.0");
+  final TextEditingController _controller = TextEditingController(text: "1");
 
   int decimalPlaces = 3;
   bool useScientific = false;
   String selectedLang = "English";
   final List<String> languages = ["English", "Hindi", "Spanish", "French", "Arabic", "Chinese", "Russian", "Portuguese", "German"];
 
-  // --- FULL TRANSLATION MAP ---
   Map<String, Map<String, String>> localizedText = {
     "English": {
-      "home": "Home", "fav": "Favorites", "hist": "History", "set": "Settings", "title": "SMART CONVERTER",
-      "Geometry": "Geometry", "Motion": "Motion", "Thermo": "Thermo", "Electronics": "Electronics", "Digital": "Digital",
+      "home": "Home", "fav": "Favorites", "hist": "History", "set": "Settings", "title": "SMART UNIT CONVERTER",
+      "Geometry": "Geometry", "Motion": "Motion", "Thermo": "Thermo", "Electronics": "Electronics", "Digital": "Digital", "Binary Lab": "Binary Lab",
       "Length": "Length", "Area": "Area", "Volume": "Volume", "Mass": "Mass", "Time": "Time", "Speed": "Speed", "Acceleration": "Acceleration", "Angle": "Angle",
       "Temperature": "Temperature", "Pressure": "Pressure", "Energy": "Energy", "Power": "Power", "Voltage": "Voltage", "Current": "Current", "Resistance": "Resistance", "Capacitance": "Capacitance",
       "Frequency": "Frequency", "Data Size": "Data Size", "Data Rate": "Data Rate", "Currency": "Currency",
+      "Number Systems": "Number Systems", "Logarithm": "Logarithm", "Decibel": "Decibel", "Binary Tools": "Binary Tools",
       "dark_m": "Dark Mode 🌙", "light_m": "Light Mode ☀️", "lang": "Language", "prec": "Decimal Precision", "info": "Information", "note": "Precision Note", "ver": "Version", "sel": "Selected", "places": "places", "no_fav": "No favorites yet", "no_hist": "No history found", "copy": "Copied", "offline": "Offline: Cannot load rates", "retry": "Retry", "connect": "Connect to Internet",
-      "sci": "Scientific Notation", "export": "Export History", "csv_msg": "History copied as CSV"
+      "sci": "Scientific Notation", "export": "Export History", "csv_msg": "History copied as CSV", "reset": "Reset App State", "reset_sub": "Clears all saved states for sections"
     },
-    "Hindi": {
-      "home": "होम", "fav": "पसंदीदा", "hist": "इतिहास", "set": "सेटिंग्स", "title": "स्मार्ट कन्वर्टर",
-      "Geometry": "ज्यामिति", "Motion": "गति", "Thermo": "ताप", "Electronics": "इलेक्ट्रॉनिक्स", "Digital": "डिजिटल",
-      "Length": "लंबाई", "Area": "क्षेत्रफल", "Volume": "आयतन", "Mass": "द्रव्यमान", "Currency": "मुद्रा",
-      "dark_m": "डार्क मोड 🌙", "light_m": "लाइट मोड ☀️", "lang": "भाषा", "prec": "दशमलव परिशुद्धता", "sci": "वैज्ञानिक अंकन", "export": "इतिहास निर्यात करें", "csv_msg": "इतिहास CSV के रूप में कॉपी किया गया"
-    },
-    "Spanish": {
-      "home": "Inicio", "fav": "Favoritos", "hist": "Historial", "set": "Ajustes", "title": "CONVERSOR INTELIGENTE",
-      "Geometry": "Geometría", "Motion": "Movimiento", "Thermo": "Termo", "Electronics": "Electrónica", "Digital": "Digital",
-      "Length": "Longitud", "Area": "Área", "Volume": "Volumen", "Mass": "Masa", "Currency": "Moneda",
-      "dark_m": "Modo Oscuro 🌙", "light_m": "Modo Claro ☀️", "lang": "Idioma", "prec": "Precisión decimal", "sci": "Notación científica", "export": "Exportar historial", "csv_msg": "Historial copiado como CSV"
-    },
-    "French": {
-      "home": "Accueil", "fav": "Favoris", "hist": "Historique", "set": "Paramètres", "title": "CONVERTISSEUR INTELLIGENT",
-      "Geometry": "Géométrie", "Motion": "Mouvement", "Thermo": "Thermo", "Electronics": "Électronique", "Digital": "Numérique",
-      "Length": "Longueur", "Area": "Zone", "Volume": "Volume", "Mass": "Masse", "Currency": "Devise",
-      "dark_m": "Mode sombre 🌙", "light_m": "Mode clair ☀️", "lang": "Langue", "prec": "Précision décimale", "sci": "Notation scientifique", "export": "Exporter l'historique", "csv_msg": "Historique copié en CSV"
-    },
-    "Arabic": {
-      "home": "الرئيسية", "fav": "المفضلة", "hist": "السجل", "set": "الإعدادات", "title": "المحول الذكي",
-      "Geometry": "الهندسة", "Motion": "الحركة", "Thermo": "الحرارة", "Electronics": "الإلكترونيات", "Digital": "الرقمية",
-      "Length": "الطول", "Area": "المساحة", "Volume": "الحجم", "Mass": "الكتلة", "Currency": "العملة",
-      "dark_m": "الوضع الداكن 🌙", "light_m": "الوضع الفاتح ☀️", "lang": "اللغة", "prec": "دقة الكسور", "sci": "الترميز العلمي", "export": "تصدير السجل", "csv_msg": "تم نسخ السجل بتنسيق CSV"
-    },
-    "Chinese": {
-      "home": "首页", "fav": "收藏夹", "hist": "历史", "set": "设置", "title": "智能转换器",
-      "Geometry": "几何", "Motion": "运动", "Thermo": "热学", "Electronics": "电子", "Digital": "数字",
-      "Length": "长度", "Area": "面积", "Volume": "体积", "Mass": "质量", "Currency": "货币",
-      "dark_m": "深色模式 🌙", "light_m": "浅色模式 ☀️", "lang": "语言", "prec": "十进制精度", "sci": "科学计数法", "export": "导出历史", "csv_msg": "历史记录已复制为 CSV"
-    },
-    "Russian": {
-      "home": "Главная", "fav": "Избранное", "hist": "История", "set": "Настройки", "title": "УМНЫЙ КОНВЕРТЕР",
-      "Geometry": "Геометрия", "Motion": "Движение", "Thermo": "Термо", "Electronics": "Электроника", "Digital": "Цифровой",
-      "Length": "Длина", "Area": "Площадь", "Volume": "Объем", "Mass": "Масса", "Currency": "Валюта",
-      "dark_m": "Темный режим 🌙", "light_m": "Светлый режим ☀️", "lang": "Язык", "prec": "Точность", "sci": "Научный формат", "export": "Экспорт истории", "csv_msg": "История скопирована как CSV"
-    },
-    "Portuguese": {
-      "home": "Início", "fav": "Favoritos", "hist": "Histórico", "set": "Configurações", "title": "CONVERSOR INTELIGENTE",
-      "Geometry": "Geometria", "Motion": "Movimento", "Thermo": "Termo", "Electronics": "Eletrônicos", "Digital": "Digital",
-      "Length": "Comprimento", "Area": "Área", "Volume": "Volume", "Mass": "Massa", "Currency": "Moeda",
-      "dark_m": "Modo Escuro 🌙", "light_m": "Modo Claro ☀️", "lang": "Idioma", "prec": "Precisão decimal", "sci": "Notação científica", "export": "Exportar histórico", "csv_msg": "Histórico copiado como CSV"
-    },
-    "German": {
-      "home": "Start", "fav": "Favoriten", "hist": "Verlauf", "set": "Einstellungen", "title": "SMARTER KONVERTER",
-      "Geometry": "Geometrie", "Motion": "Bewegung", "Thermo": "Thermo", "Electronics": "Elektronik", "Digital": "Digital",
-      "Length": "Länge", "Area": "Fläche", "Volume": "Volumen", "Mass": "Masse", "Currency": "Währung",
-      "dark_m": "Dunkelmodus 🌙", "light_m": "Hellmodus ☀️", "lang": "Sprache", "prec": "Dezimalstellen", "sci": "Wissensch. Notation", "export": "Verlauf exportieren", "csv_msg": "Verlauf als CSV kopiert"
-    }
-  };
+  "Hindi": {
+    "home": "होम", "fav": "पसंदीदा", "hist": "इतिहास", "set": "सेटिंग्स", "title": "स्मार्ट यूनिट कन्वर्टर",
+    "Geometry": "ज्यामिति", "Motion": "गति", "Thermo": "ताप", "Electronics": "इलेक्ट्रॉनिक्स", "Digital": "डिजिटल", "Binary Lab": "बाइनरी लैब",
+    "Length": "लंबाई", "Area": "क्षेत्रफल", "Volume": "आयतन", "Mass": "द्रव्यमान", "Currency": "मुद्रा",
+    "Number Systems": "संख्या प्रणाली", "Logarithm": "लघुगणक", "Decibel": "डेसीबल", "Binary Tools": "बाइनरी टूल्स",
+    "dark_m": "डार्क मोड 🌙", "light_m": "लाइट मोड ☀️", "lang": "भाषा", "prec": "दशमलव परिशुद्धता", "sci": "वैज्ञानिक अंकन", "export": "इतिहास निर्यात करें", "csv_msg": "इतिहास CSV के रूप में कॉपी किया गया"
+  },
+  "Spanish": {
+    "home": "Inicio", "fav": "Favoritos", "hist": "Historial", "set": "Ajustes", "title": "CONVERSOR DE UNIDADES INTELIGENTE",
+    "Geometry": "Geometría", "Motion": "Movimiento", "Thermo": "Termo", "Electronics": "Electrónica", "Digital": "Digital", "Binary Lab": "Lab Binario",
+    "Length": "Longitud", "Area": "Área", "Volume": "Volumen", "Mass": "Masa", "Currency": "Moneda",
+    "Number Systems": "Sistemas Numéricos", "Logarithm": "Logaritmo", "Decibel": "Decibelio", "Binary Tools": "Herramientas Binarias",
+    "dark_m": "Modo Oscuro 🌙", "light_m": "Modo Claro ☀️", "lang": "Idioma", "prec": "Precisión decimal", "sci": "Notación científica", "export": "Exportar historial", "csv_msg": "Historial copiado como CSV"
+  },
+  "French": {
+    "home": "Accueil", "fav": "Favoris", "hist": "Historique", "set": "Paramètres", "title": "CONVERTISSEUR D'UNITÉ INTELLIGENT",
+    "Geometry": "Géométrie", "Motion": "Mouvement", "Thermo": "Thermo", "Electronics": "Électronique", "Digital": "Numérique", "Binary Lab": "Lab Binaire",
+    "Length": "Longueur", "Area": "Zone", "Volume": "Volume", "Mass": "Masse", "Currency": "Devise",
+    "Number Systems": "Systèmes Numériques", "Logarithm": "Logarithme", "Decibel": "Décibel", "Binary Tools": "Outils Binaires",
+    "dark_m": "Mode sombre 🌙", "light_m": "Mode clair ☀️", "lang": "Langue", "prec": "Précision décimale", "sci": "Notation scientifique", "export": "Exporter l'historique", "csv_msg": "Historique copié en CSV"
+  },
+  "Arabic": {
+    "home": "الرئيسية", "fav": "المفضلة", "hist": "السجل", "set": "الإعدادات", "title": "محول الوحدات الذكي",
+    "Geometry": "الهندسة", "Motion": "الحركة", "Thermo": "الحرارة", "Electronics": "الإلكترونيات", "Digital": "الرقمية", "Binary Lab": "مختبر الثنائي",
+    "Length": "الطول", "Area": "المساحة", "Volume": "الحجم", "Mass": "الكتلة", "Currency": "العملة",
+    "Number Systems": "أنظمة الأعداد", "Logarithm": "اللوغاريتم", "Decibel": "ديسيبل", "Binary Tools": "أدوات الثنائي",
+    "dark_m": "الوضع الداكن 🌙", "light_m": "الوضع الفاتح ☀️", "lang": "اللغة", "prec": "دقة الكسور", "sci": "الترميز العلمي", "export": "تصدير السجل", "csv_msg": "تم نسخ السجل بتنسيق CSV"
+  },
+  "Chinese": {
+    "home": "首页", "fav": "收藏夹", "hist": "历史", "set": "设置", "title": "智能单位转换器",
+    "Geometry": "几何", "Motion": "运动", "Thermo": "热学", "Electronics": "电子", "Digital": "数字", "Binary Lab": "二进制实验室",
+    "Length": "长度", "Area": "面积", "Volume": "体积", "Mass": "质量", "Currency": "货币",
+    "Number Systems": "数制系统", "Logarithm": "对数", "Decibel": "分贝", "Binary Tools": "二进制工具",
+    "dark_m": "深色模式 🌙", "light_m": "浅色模式 ☀️", "lang": "语言", "prec": "十进制精度", "sci": "科学计数法", "export": "导出历史", "csv_msg": "历史记录已复制为 CSV"
+  },
+  "Russian": {
+    "home": "Главная", "fav": "Избранное", "hist": "История", "set": "Настройки", "title": "УМНЫЙ КОНВЕРТЕР ЕДИНИЦ",
+    "Geometry": "Геометрия", "Motion": "Движение", "Thermo": "Термо", "Electronics": "Электроника", "Digital": "Цифровой", "Binary Lab": "Двоичная лаб",
+    "Length": "Длина", "Area": "Площадь", "Volume": "Объем", "Mass": "Масса", "Currency": "Валюта",
+    "Number Systems": "Системы счисления", "Logarithm": "Логарифм", "Decibel": "Децибел", "Binary Tools": "Двоичные инструменты",
+    "dark_m": "Темный режим 🌙", "light_m": "Светлый режим ☀️", "lang": "Язык", "prec": "Точность", "sci": "Научный формат", "export": "Экспорт истории", "csv_msg": "История скопирована как CSV"
+  },
+  "Portuguese": {
+    "home": "Início", "fav": "Favoritos", "hist": "Histórico", "set": "Configurações", "title": "CONVERSOR DE UNIDADES INTELIGENTE",
+    "Geometry": "Geometria", "Motion": "Movimento", "Thermo": "Termo", "Electronics": "Eletrônicos", "Digital": "Digital", "Binary Lab": "Lab Binário",
+    "Length": "Comprimento", "Area": "Área", "Volume": "Volume", "Mass": "Massa", "Currency": "Moeda",
+    "Number Systems": "Sistemas Numéricos", "Logarithm": "Logaritmo", "Decibel": "Decibel", "Binary Tools": "Ferramentas Binárias",
+    "dark_m": "Modo Escuro 🌙", "light_m": "Modo Claro ☀️", "lang": "Idioma", "prec": "Precisão decimal", "sci": "Notación científica", "export": "Exportar histórico", "csv_msg": "Histórico copiado como CSV"
+  },
+  "German": {
+    "home": "Start", "fav": "Favoriten", "hist": "Verlauf", "set": "Einstellungen", "title": "SMARTER EINHEITEN-KONVERTER",
+    "Geometry": "Geometrie", "Motion": "Bewegung", "Thermo": "Thermo", "Electronics": "Elektronik", "Digital": "Digital", "Binary Lab": "Binär-Labor",
+    "Length": "Länge", "Area": "Fläche", "Volume": "Volumen", "Mass": "Masse", "Currency": "Währung",
+    "Number Systems": "Zahlensysteme", "Logarithmus": "Logarithmus", "Decibel": "Dezibel", "Binary Tools": "Binär-Werkzeuge",
+    "dark_m": "Dunkelmodus 🌙", "light_m": "Hellmodus ☀️", "lang": "Sprache", "prec": "Dezimalstellen", "sci": "Wissensch. Notation", "export": "Verlauf exportieren", "csv_msg": "Verlauf als CSV kopiert"
+  }
+};
 
   String t(String key) => localizedText[selectedLang]?[key] ?? localizedText["English"]![key] ?? key;
 
   List<String> favorites = [];
   List<Map<String, String>> history = [];
 
-  final List<String> topics = ["Geometry", "Motion", "Thermo", "Electronics", "Digital"];
+  final List<String> topics = ["Geometry", "Motion", "Thermo", "Binary Lab", "Digital"];
   final Map<String, IconData> topicIcons = {
-    "Geometry": Icons.architecture, "Motion": Icons.directions_run, "Thermo": Icons.whatshot, "Electronics": Icons.memory, "Digital": Icons.data_usage,
+    "Geometry": Icons.architecture, "Motion": Icons.directions_run, "Thermo": Icons.whatshot, "Electronics": Icons.memory, "Digital": Icons.data_usage, "Binary Lab": Icons.code,
   };
   final List<Color> topicColors = [
-    const Color(0xFF007AFF), const Color(0xFF34C759), const Color(0xFFFF9500), const Color(0xFFAF52DE), const Color(0xFFFF2D55),
+    const Color(0xFF007AFF), const Color(0xFF34C759), const Color.fromARGB(255, 255, 149, 0), const Color(0xFFAF52DE), const Color(0xFFFF2D55), const Color(0xFF00BFFF),
   ];
 
   final Map<String, List<String>> sections = {
@@ -222,7 +234,8 @@ class _MainDashboardState extends State<MainDashboard> {
     "Motion": ["Time", "Speed", "Acceleration", "Angle"],
     "Thermo": ["Temperature", "Pressure", "Energy", "Power"],
     "Electronics": ["Voltage", "Current", "Resistance", "Capacitance"],
-    "Digital": ["Frequency", "Data Size", "Data Rate", "Currency"]
+    "Digital": ["Frequency", "Data Size", "Data Rate", "Currency"],
+    "Binary Lab": ["Number Systems", "Logarithm", "Decibel", "Binary Tools"]
   };
 
   final Map<String, IconData> sectionIcons = {
@@ -230,7 +243,8 @@ class _MainDashboardState extends State<MainDashboard> {
     "Time": Icons.schedule, "Speed": Icons.speed, "Acceleration": Icons.trending_up, "Angle": Icons.text_rotation_angleup,
     "Temperature": Icons.thermostat, "Pressure": Icons.compress, "Energy": Icons.bolt, "Power": Icons.ev_station,
     "Voltage": Icons.electric_bolt, "Current": Icons.waves, "Resistance": Icons.mediation, "Capacitance": Icons.battery_full,
-    "Frequency": Icons.rss_feed, "Data Size": Icons.storage, "Data Rate": Icons.wifi_tethering, "Currency": Icons.payments
+    "Frequency": Icons.rss_feed, "Data Size": Icons.storage, "Data Rate": Icons.wifi_tethering, "Currency": Icons.payments,
+    "Number Systems": Icons.pin, "Logarithm": Icons.functions, "Decibel": Icons.volume_up, "Binary Tools": Icons.terminal,
   };
 
   final Map<String, String> siDefaults = {
@@ -238,7 +252,8 @@ class _MainDashboardState extends State<MainDashboard> {
     "Speed": "m/s", "Acceleration": "m/s²", "Angle": "degree", "Temperature": "°C",
     "Pressure": "Pa", "Energy": "J", "Power": "W", "Voltage": "V", "Current": "A",
     "Resistance": "Ω", "Capacitance": "F", "Frequency": "Hz", "Data Size": "byte",
-    "Data Rate": "bps", "Currency": "USD"
+    "Data Rate": "bps", "Currency": "USD",
+    "Number Systems": "Decimal", "Logarithm": "log10(x)", "Decibel": "dB", "Binary Tools": "Decimal"
   };
 
   final Map<String, Map<String, double>> unitData = {
@@ -261,13 +276,18 @@ class _MainDashboardState extends State<MainDashboard> {
     "Frequency": {"Hz": 1.0, "kHz": 1000.0, "MHz": 1e6, "GHz": 1e9},
     "Data Size": {"byte": 1.0, "bit": 0.125, "KB": 1024.0, "MB": 1.048e6, "GB": 1.073e9},
     "Data Rate": {"bps": 1.0, "kbps": 1000.0, "Mbps": 1e6, "Gbps": 1e9},
+    "Number Systems": {"Binary": 2, "Octal": 8, "Decimal": 10, "Hexadecimal": 16, "Base 3": 3, "Base 5": 5, "Base 12": 12, "Base 32": 32, "Base 64": 64},
+    "Logarithm": {"log10(x)": 10, "ln(x)": 2.718, "log2(x)": 2, "log3(x)": 3, "Antilog10": -10, "Antilog e": -2.718, "Antilog2": -2},
+    "Decibel": {"dB": 1, "dBm": 2, "dBW": 3, "dBV": 4, "Power Ratio": 5, "Voltage Ratio": 6, "Current Ratio": 7, "Amplitude Ratio": 8},
+    "Binary Tools": {"Decimal": 10, "1's Complement": 1, "2's Complement": 2, "Even Parity": 3, "Odd Parity": 4, "Signed Binary": 5, "Unsigned Binary": 6, "Bit Length": 7, "Bit Count": 8},
   };
 
   final Map<String, String> fullNames = {
     "USD": "US Dollar", "EUR": "Euro", "INR": "Indian Rupee", "GBP": "British Pound", "JPY": "Japanese Yen",
     "CNY": "Chinese Yuan", "AUD": "Australian Dollar", "CAD": "Canadian Dollar", "CHF": "Swiss Franc",
     "SGD": "Singapore Dollar", "AED": "UAE Dirham", "SAR": "Saudi Riyal", "HKD": "Hong Kong Dollar",
-    "KRW": "S. Korean Won", "BRL": "Brazilian Real", "m": "Meter", "kg": "Kilogram", "Pa": "Pascal", "V": "Volt"
+    "KRW": "S. Korean Won", "BRL": "Brazilian Real", "m": "Meter", "kg": "Kilogram", "Pa": "Pascal", "V": "Volt",
+    "Binary": "Base 2", "Octal": "Base 8", "Decimal": "Base 10", "Hexadecimal": "Base 16"
   };
 
   @override
@@ -284,6 +304,22 @@ class _MainDashboardState extends State<MainDashboard> {
       decimalPlaces = prefs.getInt('decimal_p') ?? 3;
       useScientific = prefs.getBool('use_scientific') ?? false;
       selectedLang = prefs.getString('app_lang') ?? "English";
+      
+      topicIdx = prefs.getInt('last_topic_idx') ?? 0;
+      sectionIdx = prefs.getInt('last_section_idx') ?? 0;
+
+      // Load section-specific memories
+      String? inputsJson = prefs.getString('section_inputs_map');
+      if (inputsJson != null) {
+        sectionInputValues = Map<String, String>.from(json.decode(inputsJson));
+      }
+      String? unitsJson = prefs.getString('section_units_map');
+      if (unitsJson != null) {
+        sectionFromUnits = Map<String, String>.from(json.decode(unitsJson));
+      }
+
+      _refreshController();
+
       final String? historyString = prefs.getString('my_history_json');
       if (historyString != null) {
         List<dynamic> decoded = json.decode(historyString);
@@ -292,15 +328,42 @@ class _MainDashboardState extends State<MainDashboard> {
     });
   }
 
-  Future<void> _saveFavorites() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('my_favs', favorites);
+  void _refreshController() {
+    String currentSec = sections[topics[topicIdx]]![sectionIdx];
+    _controller.text = sectionInputValues[currentSec] ?? "1";
   }
 
-  Future<void> _saveHistory() async {
+  Future<void> _saveCurrentState() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('my_history_json', json.encode(history));
+    await prefs.setInt('last_topic_idx', topicIdx);
+    await prefs.setInt('last_section_idx', sectionIdx);
+    
+    // Save the maps as JSON strings to persist memory for all sections
+    await prefs.setString('section_inputs_map', json.encode(sectionInputValues));
+    await prefs.setString('section_units_map', json.encode(sectionFromUnits));
   }
+
+  Future<void> _resetToDefaults() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('last_topic_idx');
+    await prefs.remove('last_section_idx');
+    await prefs.remove('section_inputs_map');
+    await prefs.remove('section_units_map');
+
+    setState(() {
+      topicIdx = 0;
+      sectionIdx = 0;
+      sectionInputValues.clear();
+      sectionFromUnits.clear();
+      _controller.text = "1";
+    });
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t("reset"))));
+    }
+  }
+
+  // ... [fetchCurrency, addToHistory, exportHistoryToCSV, toggleFavorite methods remain same]
 
   Future<void> fetchCurrency() async {
     setState(() { isLoadingCurrency = true; isOffline = false; });
@@ -324,9 +387,14 @@ class _MainDashboardState extends State<MainDashboard> {
   void addToHistory(String from, String to, String val, String res, String section) {
     setState(() {
       history.insert(0, {'from': from, 'to': to, 'val': val, 'res': res, 'sec': section});
-      if (history.length > 100) history.removeLast(); //
+      if (history.length > 100) history.removeLast();
     });
     _saveHistory();
+  }
+  
+  Future<void> _saveHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('my_history_json', json.encode(history));
   }
 
   Future<void> exportHistoryToCSV() async {
@@ -349,6 +417,11 @@ class _MainDashboardState extends State<MainDashboard> {
     });
     _saveFavorites();
   }
+  
+  Future<void> _saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('my_favs', favorites);
+  }
 
   void restoreCalculation(String section, String from, String to, String val) {
     int foundTopic = -1; int foundSection = -1;
@@ -360,20 +433,82 @@ class _MainDashboardState extends State<MainDashboard> {
     });
     if (foundTopic != -1 && foundSection != -1) {
       setState(() {
-        topicIdx = foundTopic; sectionIdx = foundSection; fromUnit = from;
-        inputValue = double.tryParse(val) ?? 1.0; _controller.text = val; _navIdx = 0;
+        topicIdx = foundTopic; 
+        sectionIdx = foundSection; 
+        sectionFromUnits[section] = from;
+        sectionInputValues[section] = val;
+        _controller.text = val; 
+        _navIdx = 0;
       });
+      _saveCurrentState();
     }
   }
 
-  double calculateResult(String currentSec, String symbol, Map<String, double> units) {
-    if (currentSec == "Temperature") return convertTemp(inputValue, fromUnit!, symbol);
-    if (currentSec == "Currency") {
-      if (units.isEmpty) return 0.0;
-      double baseValue = (units[fromUnit] ?? 1.0) == 0 ? 0 : inputValue / units[fromUnit]!;
-      return baseValue * (units[symbol] ?? 1.0);
+  String formatBinaryOutput(dynamic val) {
+    if (val is String) return val;
+    double dVal = val.toDouble();
+    if (useScientific && (dVal >= 10000 || (dVal < 0.001 && dVal != 0))) {
+      return dVal.toStringAsExponential(decimalPlaces);
     }
-    return (inputValue * (units[fromUnit] ?? 1.0)) / (units[symbol] ?? 1.0);
+    return dVal.toStringAsFixed(decimalPlaces).replaceAll(RegExp(r"([.]*0+)(?!.*\d)"), "");
+  }
+
+  String calculateResultString(String currentSec, String target, Map<String, double> units) {
+    String rawInput = _controller.text;
+    String? currentFromUnit = sectionFromUnits[currentSec] ?? siDefaults[currentSec];
+
+    try {
+      if (currentSec == "Number Systems") {
+        try {
+          int fromBase = units[currentFromUnit!]!.toInt();
+          int toBase = units[target]!.toInt();
+          BigInt decimal = BigInt.parse(rawInput, radix: fromBase);
+          return decimal.toRadixString(toBase).toUpperCase();
+        } catch (e) { return "Invalid Base"; }
+      }
+
+      if (currentSec == "Logarithm") {
+        double x = double.tryParse(rawInput) ?? 1.0;
+        if (target.contains("log") || target == "ln(x)") { if (x <= 0) return "Must be > 0"; }
+        if (target == "log10(x)") return (math.log(x) / math.ln10).toStringAsFixed(decimalPlaces);
+        if (target == "ln(x)") return math.log(x).toStringAsFixed(decimalPlaces);
+        if (target == "log2(x)") return (math.log(x) / math.ln2).toStringAsFixed(decimalPlaces);
+        if (target == "Antilog10") return math.pow(10, x).toStringAsFixed(decimalPlaces);
+        if (target == "Antilog e") return math.pow(math.e, x).toStringAsFixed(decimalPlaces);
+      }
+
+      if (currentSec == "Decibel") {
+        double val = double.tryParse(rawInput) ?? 1.0;
+        if (target.contains("dB") && val <= 0) return "Ratio must be > 0";
+        if (target == "dB (Power)") return (10 * math.log(val) / math.ln10).toStringAsFixed(2);
+        if (target == "dB (Voltage)") return (20 * math.log(val) / math.ln10).toStringAsFixed(2);
+        if (target == "Power Ratio") return math.pow(10, val / 10).toStringAsFixed(decimalPlaces);
+        if (target == "Voltage Ratio") return math.pow(10, val / 20).toStringAsFixed(decimalPlaces);
+      }
+
+      if (currentSec == "Binary Tools") {
+        try {
+          if (target == "1's Complement") return rawInput.replaceAll('0', 'x').replaceAll('1', '0').replaceAll('x', '1');
+          if (target == "2's Complement") {
+            String ones = rawInput.replaceAll('0', 'x').replaceAll('1', '0').replaceAll('x', '1');
+            return (BigInt.parse(ones, radix: 2) + BigInt.one).toRadixString(2);
+          }
+          if (target == "Even Parity") return (rawInput.replaceAll("0", "").length % 2 == 0) ? "0" : "1";
+          if (target == "Odd Parity") return (rawInput.replaceAll("0", "").length % 2 != 0) ? "0" : "1";
+          if (target == "Bit Count") return rawInput.replaceAll('0', '').length.toString();
+          if (target == "Bit Length") return rawInput.length.toString();
+        } catch (e) { return "Invalid Binary"; }
+      }
+      
+      double inputNum = double.tryParse(rawInput) ?? 0.0;
+      if (currentSec == "Temperature") return formatBinaryOutput(convertTemp(inputNum, currentFromUnit!, target));
+      if (currentSec == "Currency") {
+        if (units.isEmpty) return "0.0";
+        double baseValue = (units[currentFromUnit] ?? 1.0) == 0 ? 0 : inputNum / units[currentFromUnit]!;
+        return formatBinaryOutput(baseValue * (units[target] ?? 1.0));
+      }
+      return formatBinaryOutput((inputNum * (units[currentFromUnit] ?? 1.0)) / (units[target] ?? 1.0));
+    } catch (e) { return "Error"; }
   }
 
   double convertTemp(double val, String from, String to) {
@@ -427,17 +562,22 @@ class _MainDashboardState extends State<MainDashboard> {
   Widget _buildConverter() {
     String currentSec = sections[topics[topicIdx]]![sectionIdx];
     var unitsMap = currentSec == "Currency" ? currencyRates : (unitData[currentSec] ?? {"Unit": 1.0});
-    fromUnit ??= siDefaults[currentSec] ?? (unitsMap.isNotEmpty ? unitsMap.keys.first : null);
+    
+    // Retrieve this section's unit or default
+    String? fromUnit = sectionFromUnits[currentSec] ?? siDefaults[currentSec] ?? (unitsMap.isNotEmpty ? unitsMap.keys.first : null);
+    
     Color activeColor = topicColors[topicIdx];
     bool isDark = widget.currentMode == ThemeMode.dark;
 
     List<String> sortedKeys = unitsMap.keys.toList();
     sortedKeys.sort((a, b) {
-      bool aFav = favorites.contains("$currentSec|$fromUnit|$a");
-      bool bFav = favorites.contains("$currentSec|$fromUnit|$b");
-      if (aFav && !bFav) return -1;
-      if (!aFav && bFav) return 1;
-      return 0;
+      String comboA = "$currentSec|$fromUnit|$a";
+      String comboB = "$currentSec|$fromUnit|$b";
+      bool isFavA = favorites.contains(comboA);
+      bool isFavB = favorites.contains(comboB);
+      if (isFavA && !isFavB) return -1;
+      if (!isFavA && isFavB) return 1;
+      return a.compareTo(b); 
     });
 
     return Column(
@@ -467,11 +607,16 @@ class _MainDashboardState extends State<MainDashboard> {
                       Expanded(
                         child: TextField(
                           controller: _controller,
-                          onChanged: (v) => setState(() => inputValue = double.tryParse(v) ?? 0),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (v) {
+                            setState(() { 
+                              sectionInputValues[currentSec] = v; 
+                            });
+                            _saveCurrentState();
+                          },
+                          keyboardType: (topics[topicIdx] == "Binary Lab" && currentSec != "Logarithm") ? TextInputType.text : const TextInputType.numberWithOptions(decimal: true),
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 70, fontWeight: FontWeight.w300, color: isDark ? Colors.white : Colors.black, letterSpacing: -2),
-                          decoration: InputDecoration(border: InputBorder.none, hintText: "1.0", hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.black26)),
+                          style: TextStyle(fontSize: 50, fontWeight: FontWeight.w300, color: isDark ? Colors.white : Colors.black, letterSpacing: -1),
+                          decoration: InputDecoration(border: InputBorder.none, hintText: "1", hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.black26)),
                         ),
                       ),
                       IconButton(
@@ -479,18 +624,17 @@ class _MainDashboardState extends State<MainDashboard> {
                         onPressed: () async {
                           ClipboardData? data = await Clipboard.getData('text/plain');
                           if (data?.text != null) {
-                            String filtered = data!.text!.replaceAll(RegExp(r'[^0-9.]'), '');
-                            if (filtered.isNotEmpty) {
-                              setState(() { _controller.text = filtered; inputValue = double.tryParse(filtered) ?? 0; });
-                            }
+                            setState(() { 
+                              _controller.text = data!.text!;
+                              sectionInputValues[currentSec] = data.text!;
+                            });
+                            _saveCurrentState();
                           }
                         },
                       ),
                     ],
                   ),
-                  if (currentSec == "Currency" && isOffline)
-                    Text(t("connect"), style: const TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
-                  if (fromUnit != null) _buildUnitDropdown(unitsMap, activeColor),
+                  if (fromUnit != null) _buildUnitDropdown(unitsMap, activeColor, currentSec, fromUnit),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -514,8 +658,8 @@ class _MainDashboardState extends State<MainDashboard> {
               itemCount: sortedKeys.length,
               itemBuilder: (context, i) {
                 String symbol = sortedKeys[i];
-                double result = calculateResult(currentSec, symbol, unitsMap);
-                return _buildResultRow(symbol, result, activeColor, currentSec);
+                String res = calculateResultString(currentSec, symbol, unitsMap);
+                return _buildResultRow(symbol, res, activeColor, currentSec, fromUnit!);
               },
             ),
         ),
@@ -526,23 +670,40 @@ class _MainDashboardState extends State<MainDashboard> {
   Widget _buildTopicBar(Color activeColor) {
     bool isDark = widget.currentMode == ThemeMode.dark;
     return Container(
-      height: 85,
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      height: 90, 
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: activeColor.withOpacity(0.05), 
+        border: Border(bottom: BorderSide(color: activeColor.withOpacity(0.1), width: 1)),
+      ),
       child: Row(
         children: List.generate(topics.length, (i) {
           bool isActive = topicIdx == i;
           return Expanded(
             child: GestureDetector(
-              onTap: () => setState(() { topicIdx = i; sectionIdx = 0; fromUnit = null; }),
+              onTap: () {
+                setState(() { 
+                  topicIdx = i; 
+                  sectionIdx = 0; 
+                  _refreshController();
+                });
+                _saveCurrentState();
+              },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(color: isActive ? topicColors[i] : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)), borderRadius: BorderRadius.circular(15)),
-                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Icon(topicIcons[topics[i]], size: 22, color: isActive ? Colors.black : (isDark ? Colors.white38 : Colors.black38)),
-                  const SizedBox(height: 6),
-                  Text(t(topics[i]), style: TextStyle(fontSize: 10, fontWeight: isActive ? FontWeight.bold : FontWeight.normal, color: isActive ? Colors.black : (isDark ? Colors.white70 : Colors.black87))),
-                ]),
+                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8), 
+                decoration: BoxDecoration(
+                  color: isActive ? topicColors[i] : (isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(topicIcons[topics[i]], size: 20, color: isActive ? Colors.black : (isDark ? Colors.white38 : Colors.black38)),
+                    const SizedBox(height: 4),
+                    Text(t(topics[i]), textAlign: TextAlign.center, style: TextStyle(fontSize: 9, color: isActive ? Colors.black : (isDark ? Colors.white70 : Colors.black87))),
+                  ],
+                ),
               ),
             ),
           );
@@ -555,34 +716,44 @@ class _MainDashboardState extends State<MainDashboard> {
     List<String> secList = sections[topics[topicIdx]]!;
     bool isDark = widget.currentMode == ThemeMode.dark;
     return Container(
-      height: 75,
-      decoration: BoxDecoration(color: activeColor.withOpacity(0.08), border: Border.symmetric(horizontal: BorderSide(color: activeColor.withOpacity(0.1), width: 0.5))),
-      child: Row(children: List.generate(secList.length, (i) {
-        bool isActive = sectionIdx == i;
-        return Expanded(
-          child: InkWell(
-            onTap: () => setState(() { sectionIdx = i; fromUnit = null; }),
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(sectionIcons[secList[i]], size: 20, color: isActive ? activeColor : (isDark ? Colors.white24 : Colors.black26)),
-              const SizedBox(height: 6),
-              Text(t(secList[i]).toUpperCase(), style: TextStyle(fontSize: 8, letterSpacing: 0.8, fontWeight: isActive ? FontWeight.w900 : FontWeight.w500, color: isActive ? activeColor : (isDark ? Colors.white24 : Colors.black26))),
-            ]),
-          ),
-        );
-      })),
+      height: 65,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: activeColor.withOpacity(0.12),
+        border: Border.symmetric(horizontal: BorderSide(color: activeColor.withOpacity(0.1), width: 1)),
+      ),
+      child: Row(
+        children: List.generate(secList.length, (i) {
+          bool isActive = sectionIdx == i;
+          return Expanded(
+            child: InkWell(
+              onTap: () {
+                setState(() { 
+                  sectionIdx = i; 
+                  _refreshController();
+                });
+                _saveCurrentState();
+              },
+              child: Container(
+                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: isActive ? activeColor : Colors.transparent, width: 3))),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center, 
+                  children: [
+                    Icon(sectionIcons[secList[i]], size: 20, color: isActive ? activeColor : (isDark ? Colors.white24 : Colors.black26)),
+                    const SizedBox(height: 4),
+                    Text(t(secList[i]).toUpperCase(), textAlign: TextAlign.center, style: TextStyle(fontSize: 8, color: isActive ? activeColor : (isDark ? Colors.white24 : Colors.black26))),
+                  ],
+                ),
+              ),
+            ),
+          );
+        })
+      ),
     );
   }
 
-  Widget _buildResultRow(String symbol, double val, Color activeColor, String section) {
+  Widget _buildResultRow(String symbol, String formattedVal, Color activeColor, String section, String fromUnit) {
     bool isDark = widget.currentMode == ThemeMode.dark;
-    
-    String formattedVal;
-    if (useScientific && (val >= 10000 || (val < 0.001 && val != 0))) {
-      formattedVal = val.toStringAsExponential(decimalPlaces);
-    } else {
-      formattedVal = val.toStringAsFixed(decimalPlaces).replaceAll(RegExp(r"([.]*0+)(?!.*\d)"), "");
-    }
-
     String comboKey = "$section|$fromUnit|$symbol";
     bool isFav = favorites.contains(comboKey);
 
@@ -592,25 +763,26 @@ class _MainDashboardState extends State<MainDashboard> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${t("copy")} $formattedVal"), duration: const Duration(seconds: 1)));
       },
       onTap: () {
-        addToHistory(fromUnit!, symbol, inputValue.toString(), formattedVal, section);
+        addToHistory(fromUnit, symbol, _controller.text, formattedVal, section);
         HapticFeedback.lightImpact();
       },
       title: Text(fullNames[symbol] ?? symbol, style: TextStyle(color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.5), fontSize: 13)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(formattedVal, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300, color: isDark ? Colors.white : Colors.black)),
+          Text(formattedVal.length > 15 ? "${formattedVal.substring(0, 12)}..." : formattedVal, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: isDark ? Colors.white : Colors.black)),
           const SizedBox(width: 12),
-          Text(symbol, style: TextStyle(fontSize: 11, color: activeColor, fontWeight: FontWeight.bold)),
-          const SizedBox(width: 8),
+          Text(symbol, style: TextStyle(fontSize: 10, color: activeColor, fontWeight: FontWeight.bold)),
           IconButton(
             icon: Icon(isFav ? Icons.star : Icons.star_border, color: isFav ? Colors.amber : (isDark ? Colors.white10 : Colors.black12)),
-            onPressed: () => toggleFavorite(section, fromUnit!, symbol),
+            onPressed: () => toggleFavorite(section, fromUnit, symbol),
           )
         ],
       ),
     );
   }
+
+  // ... [buildFavorites, buildHistory, buildSettings remain mostly the same]
 
   Widget _buildFavorites() {
     bool isDark = widget.currentMode == ThemeMode.dark;
@@ -732,6 +904,13 @@ class _MainDashboardState extends State<MainDashboard> {
             title: Text(t("export")),
             onTap: exportHistoryToCSV,
           ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.refresh, color: Colors.redAccent),
+            title: Text(t("reset")),
+            subtitle: Text(t("reset_sub")),
+            onTap: _resetToDefaults,
+          ),
           const Divider(height: 40),
           Text(t("info"), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
           const SizedBox(height: 10),
@@ -749,7 +928,7 @@ class _MainDashboardState extends State<MainDashboard> {
                   const ListTile(
                     leading: Icon(Icons.verified_user_outlined, color: Colors.green),
                     title: Text("Version"),
-                    subtitle: Text("v1.0.7 - Pro Edition", style: TextStyle(color: Colors.grey)),
+                    subtitle: Text("v1.0.8 - Pro Binary Edition", style: TextStyle(color: Colors.grey)),
                   ),
                 ],
               ),
@@ -760,16 +939,21 @@ class _MainDashboardState extends State<MainDashboard> {
     );
   }
 
-  Widget _buildUnitDropdown(Map<String, double> units, Color activeColor) {
+  Widget _buildUnitDropdown(Map<String, double> units, Color activeColor, String currentSec, String currentUnit) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(border: Border.all(color: activeColor.withOpacity(0.2)), borderRadius: BorderRadius.circular(12)),
       child: DropdownButton<String>(
-        value: fromUnit,
+        value: currentUnit,
         underline: const SizedBox(),
         dropdownColor: widget.currentMode == ThemeMode.dark ? Colors.black : Colors.white,
         items: units.keys.map((u) => DropdownMenuItem(value: u, child: Text(fullNames[u] ?? u, style: TextStyle(fontSize: 14, color: activeColor)))).toList(),
-        onChanged: (v) => setState(() { fromUnit = v; }),
+        onChanged: (v) {
+          setState(() { 
+            sectionFromUnits[currentSec] = v!; 
+          });
+          _saveCurrentState();
+        },
       ),
     );
   }
