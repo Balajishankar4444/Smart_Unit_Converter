@@ -158,63 +158,87 @@ class _MainDashboardState extends State<MainDashboard> {
       "dark_m": "Dark Mode 🌙", "light_m": "Light Mode ☀️", "lang": "Language", "prec": "Decimal Precision", "info": "Information", "note": "Precision Note", "ver": "Version", "sel": "Selected", "places": "places", "no_fav": "No favorites yet", "no_hist": "No history found", "copy": "Copied", "offline": "Offline: Cannot load rates", "retry": "Retry", "connect": "Connect to Internet",
       "sci": "Scientific Notation", "export": "Export History", "csv_msg": "History copied as CSV", "reset": "Reset App State", "reset_sub": "Clears all saved states for sections"
     },
-  "Hindi": {
-    "home": "होम", "fav": "पसंदीदा", "hist": "इतिहास", "set": "सेटिंग्स", "title": "स्मार्ट यूनिट कन्वर्टर",
-    "Geometry": "ज्यामिति", "Motion": "गति", "Thermo": "ताप", "Electronics": "इलेक्ट्रॉनिक्स", "Digital": "डिजिटल", "Binary Lab": "बाइनरी लैब",
-    "Length": "लंबाई", "Area": "क्षेत्रफल", "Volume": "आयतन", "Mass": "द्रव्यमान", "Currency": "मुद्रा",
-    "Number Systems": "संख्या प्रणाली", "Logarithm": "लघुगणक", "Decibel": "डेसीबल", "Binary Tools": "बाइनरी टूल्स",
-    "dark_m": "डार्क मोड 🌙", "light_m": "लाइट मोड ☀️", "lang": "भाषा", "prec": "दशमलव परिशुद्धता", "sci": "वैज्ञानिक अंकन", "export": "इतिहास निर्यात करें", "csv_msg": "इतिहास CSV के रूप में कॉपी किया गया"
-  },
-  "Spanish": {
-    "home": "Inicio", "fav": "Favoritos", "hist": "Historial", "set": "Ajustes", "title": "CONVERSOR DE UNIDADES INTELIGENTE",
-    "Geometry": "Geometría", "Motion": "Movimiento", "Thermo": "Termo", "Electronics": "Electrónica", "Digital": "Digital", "Binary Lab": "Lab Binario",
-    "Length": "Longitud", "Area": "Área", "Volume": "Volumen", "Mass": "Masa", "Currency": "Moneda",
-    "Number Systems": "Sistemas Numéricos", "Logarithm": "Logaritmo", "Decibel": "Decibelio", "Binary Tools": "Herramientas Binarias",
-    "dark_m": "Modo Oscuro 🌙", "light_m": "Modo Claro ☀️", "lang": "Idioma", "prec": "Precisión decimal", "sci": "Notación científica", "export": "Exportar historial", "csv_msg": "Historial copiado como CSV"
-  },
-  "French": {
-    "home": "Accueil", "fav": "Favoris", "hist": "Historique", "set": "Paramètres", "title": "CONVERTISSEUR D'UNITÉ INTELLIGENT",
-    "Geometry": "Géométrie", "Motion": "Mouvement", "Thermo": "Thermo", "Electronics": "Électronique", "Digital": "Numérique", "Binary Lab": "Lab Binaire",
-    "Length": "Longueur", "Area": "Zone", "Volume": "Volume", "Mass": "Masse", "Currency": "Devise",
-    "Number Systems": "Systèmes Numériques", "Logarithm": "Logarithme", "Decibel": "Décibel", "Binary Tools": "Outils Binaires",
-    "dark_m": "Mode sombre 🌙", "light_m": "Mode clair ☀️", "lang": "Langue", "prec": "Précision décimale", "sci": "Notation scientifique", "export": "Exporter l'historique", "csv_msg": "Historique copié en CSV"
-  },
-  "Arabic": {
-    "home": "الرئيسية", "fav": "المفضلة", "hist": "السجل", "set": "الإعدادات", "title": "محول الوحدات الذكي",
-    "Geometry": "الهندسة", "Motion": "الحركة", "Thermo": "الحرارة", "Electronics": "الإلكترونيات", "Digital": "الرقمية", "Binary Lab": "مختبر الثنائي",
-    "Length": "الطول", "Area": "المساحة", "Volume": "الحجم", "Mass": "الكتلة", "Currency": "العملة",
-    "Number Systems": "أنظمة الأعداد", "Logarithm": "اللوغاريتم", "Decibel": "ديسيبل", "Binary Tools": "أدوات الثنائي",
-    "dark_m": "الوضع الداكن 🌙", "light_m": "الوضع الفاتح ☀️", "lang": "اللغة", "prec": "دقة الكسور", "sci": "الترميز العلمي", "export": "تصدير السجل", "csv_msg": "تم نسخ السجل بتنسيق CSV"
-  },
-  "Chinese": {
-    "home": "首页", "fav": "收藏夹", "hist": "历史", "set": "设置", "title": "智能单位转换器",
-    "Geometry": "几何", "Motion": "运动", "Thermo": "热学", "Electronics": "电子", "Digital": "数字", "Binary Lab": "二进制实验室",
-    "Length": "长度", "Area": "面积", "Volume": "体积", "Mass": "质量", "Currency": "货币",
-    "Number Systems": "数制系统", "Logarithm": "对数", "Decibel": "分贝", "Binary Tools": "二进制工具",
-    "dark_m": "深色模式 🌙", "light_m": "浅色模式 ☀️", "lang": "语言", "prec": "十进制精度", "sci": "科学计数法", "export": "导出历史", "csv_msg": "历史记录已复制为 CSV"
-  },
-  "Russian": {
-    "home": "Главная", "fav": "Избранное", "hist": "История", "set": "Настройки", "title": "УМНЫЙ КОНВЕРТЕР ЕДИНИЦ",
-    "Geometry": "Геометрия", "Motion": "Движение", "Thermo": "Термо", "Electronics": "Электроника", "Digital": "Цифровой", "Binary Lab": "Двоичная лаб",
-    "Length": "Длина", "Area": "Площадь", "Volume": "Объем", "Mass": "Масса", "Currency": "Валюта",
-    "Number Systems": "Системы счисления", "Logarithm": "Логарифм", "Decibel": "Децибел", "Binary Tools": "Двоичные инструменты",
-    "dark_m": "Темный режим 🌙", "light_m": "Светлый режим ☀️", "lang": "Язык", "prec": "Точность", "sci": "Научный формат", "export": "Экспорт истории", "csv_msg": "История скопирована как CSV"
-  },
-  "Portuguese": {
-    "home": "Início", "fav": "Favoritos", "hist": "Histórico", "set": "Configurações", "title": "CONVERSOR DE UNIDADES INTELIGENTE",
-    "Geometry": "Geometria", "Motion": "Movimento", "Thermo": "Termo", "Electronics": "Eletrônicos", "Digital": "Digital", "Binary Lab": "Lab Binário",
-    "Length": "Comprimento", "Area": "Área", "Volume": "Volume", "Mass": "Massa", "Currency": "Moeda",
-    "Number Systems": "Sistemas Numéricos", "Logarithm": "Logaritmo", "Decibel": "Decibel", "Binary Tools": "Ferramentas Binárias",
-    "dark_m": "Modo Escuro 🌙", "light_m": "Modo Claro ☀️", "lang": "Idioma", "prec": "Precisão decimal", "sci": "Notación científica", "export": "Exportar histórico", "csv_msg": "Histórico copiado como CSV"
-  },
-  "German": {
-    "home": "Start", "fav": "Favoriten", "hist": "Verlauf", "set": "Einstellungen", "title": "SMARTER EINHEITEN-KONVERTER",
-    "Geometry": "Geometrie", "Motion": "Bewegung", "Thermo": "Thermo", "Electronics": "Elektronik", "Digital": "Digital", "Binary Lab": "Binär-Labor",
-    "Length": "Länge", "Area": "Fläche", "Volume": "Volumen", "Mass": "Masse", "Currency": "Währung",
-    "Number Systems": "Zahlensysteme", "Logarithmus": "Logarithmus", "Decibel": "Dezibel", "Binary Tools": "Binär-Werkzeuge",
-    "dark_m": "Dunkelmodus 🌙", "light_m": "Hellmodus ☀️", "lang": "Sprache", "prec": "Dezimalstellen", "sci": "Wissensch. Notation", "export": "Verlauf exportieren", "csv_msg": "Verlauf als CSV kopiert"
-  }
-};
+    "Hindi": {
+      "home": "होम", "fav": "पसंदीदा", "hist": "इतिहास", "set": "सेटिंग्स", "title": "स्मार्ट यूनिट कन्वर्टर",
+      "Geometry": "ज्यामिति", "Motion": "गति", "Thermo": "ताप", "Electronics": "इलेक्ट्रॉनिक्स", "Digital": "डिजिटल", "Binary Lab": "बाइनरी लैब",
+      "Length": "लंबाई", "Area": "क्षेत्रफल", "Volume": "आयतन", "Mass": "द्रव्यमान", "Time": "समय", "Speed": "गति", "Acceleration": "त्वरण", "Angle": "कोण",
+      "Temperature": "तापमान", "Pressure": "दबाव", "Energy": "ऊर्जा", "Power": "शक्ति", "Voltage": "वोल्टेज", "Current": "करंट", "Resistance": "प्रतिरोध", "Capacitance": "धारिता",
+      "Frequency": "आवृत्ति", "Data Size": "डेटा आकार", "Data Rate": "डेटा दर", "Currency": "मुद्रा",
+      "Number Systems": "संख्या प्रणाली", "Logarithm": "लघुगणक", "Decibel": "डेसीबल", "Binary Tools": "बाइनरी टूल्स",
+      "dark_m": "डार्क मोड 🌙", "light_m": "लाइट मोड ☀️", "lang": "भाषा", "prec": "दशमलव परिशुद्धता", "info": "सूचना", "note": "परिशुद्धता नोट", "ver": "संस्करण", "sel": "चयनित", "places": "स्थान", "no_fav": "अभी तक कोई पसंदीदा नहीं", "no_hist": "कोई इतिहास नहीं मिला", "copy": "कॉपी किया गया", "offline": "ऑफलाइन: दरें लोड नहीं की जा सकतीं", "retry": "पुनः प्रयास करें", "connect": "इंटरनेट से जुड़ें",
+      "sci": "वैज्ञानिक अंकन", "export": "इतिहास निर्यात करें", "csv_msg": "इतिहास CSV के रूप में कॉपी किया गया", "reset": "ऐप स्थिति रीसेट करें", "reset_sub": "सभी सहेजी गई स्थितियों को साफ़ करता है"
+    },
+    "Spanish": {
+      "home": "Inicio", "fav": "Favoritos", "hist": "Historial", "set": "Ajustes", "title": "CONVERSOR DE UNIDADES",
+      "Geometry": "Geometría", "Motion": "Movimiento", "Thermo": "Termo", "Electronics": "Electrónica", "Digital": "Digital", "Binary Lab": "Lab Binario",
+      "Length": "Longitud", "Area": "Área", "Volume": "Volumen", "Mass": "Masa", "Time": "Tiempo", "Speed": "Velocidad", "Acceleration": "Aceleración", "Angle": "Ángulo",
+      "Temperature": "Temperatura", "Pressure": "Presión", "Energy": "Energía", "Power": "Potencia", "Voltage": "Voltaje", "Current": "Corriente", "Resistance": "Resistencia", "Capacitance": "Capacitancia",
+      "Frequency": "Frecuencia", "Data Size": "Tamaño de datos", "Data Rate": "Tasa de datos", "Currency": "Moneda",
+      "Number Systems": "Sistemas Numéricos", "Logarithm": "Logaritmo", "Decibel": "Decibelio", "Binary Tools": "Herramientas Binarias",
+      "dark_m": "Modo Oscuro 🌙", "light_m": "Modo Claro ☀️", "lang": "Idioma", "prec": "Precisión decimal", "info": "Información", "note": "Nota de precisión", "ver": "Versión", "sel": "Seleccionado", "places": "lugares", "no_fav": "Sin favoritos", "no_hist": "Sin historial", "copy": "Copiado", "offline": "Sin conexión", "retry": "Reintentar", "connect": "Conéctate a Internet",
+      "sci": "Notación científica", "export": "Exportar historial", "csv_msg": "Historial copiado", "reset": "Restablecer aplicación", "reset_sub": "Borra los estados guardados"
+    },
+    "French": {
+      "home": "Accueil", "fav": "Favoris", "hist": "Historique", "set": "Paramètres", "title": "CONVERTISSEUR INTELLIGENT",
+      "Geometry": "Géométrie", "Motion": "Mouvement", "Thermo": "Thermo", "Electronics": "Électronique", "Digital": "Numérique", "Binary Lab": "Lab Binaire",
+      "Length": "Longueur", "Area": "Surface", "Volume": "Volume", "Mass": "Masse", "Time": "Temps", "Speed": "Vitesse", "Acceleration": "Accélération", "Angle": "Angle",
+      "Temperature": "Température", "Pressure": "Pression", "Energy": "Énergie", "Power": "Puissance", "Voltage": "Tension", "Current": "Courant", "Resistance": "Résistance", "Capacitance": "Capacité",
+      "Frequency": "Fréquence", "Data Size": "Taille des données", "Data Rate": "Débit de données", "Currency": "Devise",
+      "Number Systems": "Systèmes Numériques", "Logarithm": "Logarithme", "Decibel": "Décibel", "Binary Tools": "Outils Binaires",
+      "dark_m": "Mode sombre 🌙", "light_m": "Mode clair ☀️", "lang": "Langue", "prec": "Précision décimale", "info": "Information", "note": "Note de précision", "ver": "Version", "sel": "Sélectionné", "places": "décimales", "no_fav": "Pas de favoris", "no_hist": "Aucun historique", "copy": "Copié", "offline": "Hors ligne", "retry": "Réessayer", "connect": "Connectez-vous à Internet",
+      "sci": "Notation scientifique", "export": "Exporter l'historique", "csv_msg": "Historique copié", "reset": "Réinitialiser l'application", "reset_sub": "Efface tous les états enregistrés"
+    },
+    "Arabic": {
+      "home": "الرئيسية", "fav": "المفضلة", "hist": "السجل", "set": "الإعدادات", "title": "محول الوحدات الذكي",
+      "Geometry": "الهندسة", "Motion": "الحركة", "Thermo": "الحرارة", "Electronics": "الإلكترونيات", "Digital": "الرقمية", "Binary Lab": "مختبر الثنائي",
+      "Length": "الطول", "Area": "المساحة", "Volume": "الحجم", "Mass": "الكتلة", "Time": "الوقت", "Speed": "السرعة", "Acceleration": "التسارع", "Angle": "الزاوية",
+      "Temperature": "الحرارة", "Pressure": "الضغط", "Energy": "الطاقة", "Power": "القدرة", "Voltage": "الجهد", "Current": "التيار", "Resistance": "المقاومة", "Capacitance": "المواساة",
+      "Frequency": "التردد", "Data Size": "حجم البيانات", "Data Rate": "معدل البيانات", "Currency": "العملة",
+      "Number Systems": "أنظمة الأعداد", "Logarithm": "اللوغاريتم", "Decibel": "ديسيبل", "Binary Tools": "أدوات الثنائي",
+      "dark_m": "الوضع الداكن 🌙", "light_m": "الوضع الفاتح ☀️", "lang": "اللغة", "prec": "دقة الكسور", "info": "معلومات", "note": "ملاحظة الدقة", "ver": "الإصدار", "sel": "محدد", "places": "مراتب", "no_fav": "لا توجد مفضلات", "no_hist": "لا يوجد سجل", "copy": "تم النسخ", "offline": "غير متصل", "retry": "إعادة المحاولة", "connect": "اتصل بالإنترنت",
+      "sci": "الترميز العلمي", "export": "تصدير السجل", "csv_msg": "تم نسخ السجل", "reset": "إعادة ضبط التطبيق", "reset_sub": "مسح جميع الحالات المحفوظة"
+    },
+    "Chinese": {
+      "home": "首页", "fav": "收藏夹", "hist": "历史", "set": "设置", "title": "智能单位转换器",
+      "Geometry": "几何", "Motion": "运动", "Thermo": "热学", "Electronics": "电子", "Digital": "数字", "Binary Lab": "二进制实验室",
+      "Length": "长度", "Area": "面积", "Volume": "体积", "Mass": "质量", "Time": "时间", "Speed": "速度", "Acceleration": "加速度", "Angle": "角度",
+      "Temperature": "温度", "Pressure": "压力", "Energy": "能量", "Power": "功率", "Voltage": "电压", "Current": "电流", "Resistance": "电阻", "Capacitance": "电容",
+      "Frequency": "频率", "Data Size": "数据大小", "Data Rate": "数据速率", "Currency": "货币",
+      "Number Systems": "数制系统", "Logarithm": "对数", "Decibel": "分贝", "Binary Tools": "二进制工具",
+      "dark_m": "深色模式 🌙", "light_m": "浅色模式 ☀️", "lang": "语言", "prec": "十进制精度", "info": "信息", "note": "精度说明", "ver": "版本", "sel": "已选", "places": "位", "no_fav": "暂无收藏", "no_hist": "未发现历史", "copy": "已复制", "offline": "离线", "retry": "重试", "connect": "连接到互联网",
+      "sci": "科学计数法", "export": "导出历史", "csv_msg": "历史记录已复制", "reset": "重置应用状态", "reset_sub": "清除所有保存的状态"
+    },
+    "Russian": {
+      "home": "Главная", "fav": "Избранное", "hist": "История", "set": "Настройки", "title": "УМНЫЙ КОНВЕРТЕР",
+      "Geometry": "Геометрия", "Motion": "Движение", "Thermo": "Термо", "Electronics": "Электроника", "Digital": "Цифровой", "Binary Lab": "Двоичная лаб",
+      "Length": "Длина", "Area": "Площадь", "Volume": "Объем", "Mass": "Масса", "Time": "Время", "Speed": "Скорость", "Acceleration": "Ускорение", "Angle": "Угол",
+      "Temperature": "Температура", "Pressure": "Давление", "Energy": "Энергия", "Power": "Мощность", "Voltage": "Напряжение", "Current": "Ток", "Resistance": "Сопротивление", "Capacitance": "Емкость",
+      "Frequency": "Частота", "Data Size": "Размер данных", "Data Rate": "Скорость данных", "Currency": "Валюта",
+      "Number Systems": "Системы счисления", "Logarithm": "Логарифм", "Decibel": "Децибел", "Binary Tools": "Двоичные инструменты",
+      "dark_m": "Темный режим 🌙", "light_m": "Светлый режим ☀️", "lang": "Язык", "prec": "Точность", "info": "Информация", "note": "О точности", "ver": "Версия", "sel": "Выбрано", "places": "знаков", "no_fav": "Нет избранного", "no_hist": "История пуста", "copy": "Скопировано", "offline": "Оффлайн", "retry": "Повторить", "connect": "Подключитесь к интернету",
+      "sci": "Научный формат", "export": "Экспорт истории", "csv_msg": "История скопирована", "reset": "Сброс приложения", "reset_sub": "Очищает все сохраненные данные"
+    },
+    "Portuguese": {
+      "home": "Início", "fav": "Favoritos", "hist": "Histórico", "set": "Configurações", "title": "CONVERSOR INTELIGENTE",
+      "Geometry": "Geometria", "Motion": "Movimento", "Thermo": "Termo", "Electronics": "Eletrônicos", "Digital": "Digital", "Binary Lab": "Lab Binário",
+      "Length": "Comprimento", "Area": "Área", "Volume": "Volume", "Mass": "Massa", "Time": "Tempo", "Speed": "Velocidade", "Acceleration": "Aceleração", "Angle": "Ângulo",
+      "Temperature": "Temperatura", "Pressure": "Pressão", "Energy": "Energia", "Power": "Potência", "Voltage": "Voltagem", "Current": "Corrente", "Resistance": "Resistência", "Capacitância": "Capacitância",
+      "Frequency": "Frequência", "Data Size": "Tamanho de dados", "Data Rate": "Taxa de dados", "Currency": "Moeda",
+      "Number Systems": "Sistemas Numéricos", "Logarithm": "Logaritmo", "Decibel": "Decibel", "Binary Tools": "Ferramentas Binárias",
+      "dark_m": "Modo Escuro 🌙", "light_m": "Modo Claro ☀️", "lang": "Idioma", "prec": "Precisão decimal", "info": "Informação", "note": "Nota de precisão", "ver": "Versão", "sel": "Selecionado", "places": "casas", "no_fav": "Sem favoritos", "no_hist": "Sem histórico", "copy": "Copiado", "offline": "Offline", "retry": "Repetir", "connect": "Conecte-se à Internet",
+      "sci": "Notação científica", "export": "Exportar histórico", "csv_msg": "Histórico copiado", "reset": "Redefinir aplicativo", "reset_sub": "Limpa todos os estados salvos"
+    },
+    "German": {
+      "home": "Start", "fav": "Favoriten", "hist": "Verlauf", "set": "Einstellungen", "title": "SMARTER KONVERTER",
+      "Geometry": "Geometrie", "Motion": "Bewegung", "Thermo": "Thermo", "Electronics": "Elektronik", "Digital": "Digital", "Binary Lab": "Binär-Labor",
+      "Length": "Länge", "Area": "Fläche", "Volume": "Volumen", "Mass": "Masse", "Time": "Zeit", "Speed": "Geschwindigkeit", "Acceleration": "Beschleunigung", "Angle": "Winkel",
+      "Temperature": "Temperatur", "Pressure": "Druck", "Energy": "Energie", "Power": "Leistung", "Voltage": "Spannung", "Current": "Stromstärke", "Resistance": "Widerstand", "Capacitance": "Kapazität",
+      "Frequency": "Frequenz", "Data Size": "Datengröße", "Data Rate": "Datenrate", "Currency": "Währung",
+      "Number Systems": "Zahlensysteme", "Logarithm": "Logarithmus", "Decibel": "Dezibel", "Binary Tools": "Binär-Werkzeuge",
+      "dark_m": "Dunkelmodus 🌙", "light_m": "Hellmodus ☀️", "lang": "Sprache", "prec": "Dezimalstellen", "info": "Information", "note": "Präzisionshinweis", "ver": "Version", "sel": "Ausgewählt", "places": "Stellen", "no_fav": "Noch keine Favoriten", "no_hist": "Kein Verlauf", "copy": "Kopiert", "offline": "Offline", "retry": "Wiederholen", "connect": "Mit Internet verbinden",
+      "sci": "Wissensch. Notation", "export": "Verlauf exportieren", "csv_msg": "Verlauf kopiert", "reset": "App zurücksetzen", "reset_sub": "Löscht alle gespeicherten Zustände"
+    }
+  };
 
   String t(String key) => localizedText[selectedLang]?[key] ?? localizedText["English"]![key] ?? key;
 
