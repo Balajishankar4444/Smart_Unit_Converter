@@ -41,8 +41,8 @@ android {
         applicationId = "com.balaji.smart_converter"
         minSdk = 26
         targetSdk = 35 
-        versionCode = 3
-        versionName = "1.3"
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     compileOptions {
